@@ -41,15 +41,18 @@ if(typeof document!=='undefined'){
     const requested=new URLSearchParams(location.search).get('sort');
     const initial=sortKey(keys.has(requested)?requested:form.dataset.defaultSort);
     form.querySelector(`input[value="${initial}"]`).checked=true;
-    let applyLocation=()=>{};
+    let applyLocation=()=>{},rendered=sortKey(form.dataset.defaultSort);
     const update=()=>{
       const selected=form.querySelector('input:checked');
+      if(selected.value!==rendered){
       sortRanking(list,document.querySelector('.nr-section'),selected.value);
       const nrHeading=document.querySelector('.nr-section h2');
       if(nrHeading)nrHeading.textContent='Not ranked in '+selected.parentElement.textContent.trim();
       const nrNote=document.querySelector('.nr-section > .quiet');
       if(nrNote)nrNote.textContent='The designated source or eligibility requirements are not satisfied. These schools are not assigned a rank in '+selected.parentElement.textContent.trim()+'.';
       for(const card of document.querySelectorAll('.school-card'))updateRankLabels(card,selected.value);
+      rendered=selected.value;
+      }
       applyLocation(selected.value);
       document.getElementById('sort-status').textContent='Sorted by '+selected.parentElement.textContent+'. Published ranks are unchanged.';
     };
