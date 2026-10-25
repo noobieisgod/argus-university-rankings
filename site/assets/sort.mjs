@@ -47,6 +47,8 @@ if(typeof document!=='undefined'){
       sortRanking(list,document.querySelector('.nr-section'),selected.value);
       const nrHeading=document.querySelector('.nr-section h2');
       if(nrHeading)nrHeading.textContent='Not ranked in '+selected.parentElement.textContent.trim();
+      const nrNote=document.querySelector('.nr-section > .quiet');
+      if(nrNote)nrNote.textContent='The designated source or eligibility requirements are not satisfied. These schools are not assigned a rank in '+selected.parentElement.textContent.trim()+'.';
       for(const card of document.querySelectorAll('.school-card'))updateRankLabels(card,selected.value);
       applyLocation(selected.value);
       document.getElementById('sort-status').textContent='Sorted by '+selected.parentElement.textContent+'. Published ranks are unchanged.';
