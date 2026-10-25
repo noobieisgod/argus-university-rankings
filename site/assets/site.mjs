@@ -7,6 +7,11 @@ export function startAnalytics(doc,loc){
   script.dataset.argusBeacon='';doc.body.append(script);return true;
 }
 
+export function scheduleAnalytics(doc,loc,events){
+  if(doc.readyState==='complete')return startAnalytics(doc,loc);
+  events.addEventListener('load',()=>startAnalytics(doc,loc),{once:true});
+}
+
 if(typeof document!=='undefined'){
 const header=document.querySelector('.site-header');
 if(header){
@@ -14,5 +19,5 @@ if(header){
   measure();new ResizeObserver(measure).observe(header);
   for(const link of header.querySelectorAll('.main-nav a'))if(new URL(link.href).pathname===location.pathname)link.setAttribute('aria-current','page');
 }
-startAnalytics(document,location);
+scheduleAnalytics(document,location,window);
 }

@@ -7,7 +7,7 @@ import {basePath,publicationHtml,unmount} from './paths.mjs';
 import {compareCards,sortKey} from './assets/sort.mjs';
 import {filterByLocation} from './assets/location-filter.mjs';
 import {addSchool,matchingSchools} from './assets/compare.mjs';
-import {startAnalytics} from './assets/site.mjs';
+import {startAnalytics,scheduleAnalytics} from './assets/site.mjs';
 import {publicationConfig} from './seo.mjs';
 
 const root=path.dirname(fileURLToPath(import.meta.url));
@@ -42,6 +42,10 @@ assert.equal(startAnalytics(doc,{origin:'https://example.com',pathname:'/ARGUS/r
 assert.equal(startAnalytics(doc,{origin:'https://example.com',pathname:'/ARGUS/'}),false);
 assert.equal(inserted.length,1);assert.deepEqual(JSON.parse(inserted[0].dataset.cfBeacon),{token:'a'.repeat(32),spa:false});
 assert.equal(inserted[0].src,'https://static.cloudflareinsights.com/beacon.min.js');
+inserted.length=0;let loaded;
+scheduleAnalytics({...doc,readyState:'interactive'},{origin:'https://example.com',pathname:'/ARGUS/'},{addEventListener:(event,handler,options)=>{assert.equal(event,'load');assert.deepEqual(options,{once:true});loaded=handler;}});
+assert.equal(inserted.length,0);loaded();assert.equal(inserted.length,1);
+inserted.length=0;scheduleAnalytics({...doc,readyState:'complete'},{origin:'https://example.com',pathname:'/ARGUS/'},{addEventListener:()=>assert.fail('Load already completed')});assert.equal(inserted.length,1);
 if(process.argv.includes('--repository')){
   const repository=path.dirname(root);
   const files=execFileSync('git',['ls-files'],{cwd:repository,encoding:'utf8'}).trim().split('\n');
