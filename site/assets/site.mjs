@@ -12,11 +12,16 @@ export function scheduleAnalytics(doc,loc,events){
   events.addEventListener('load',()=>startAnalytics(doc,loc),{once:true});
 }
 
+export function updateHeaderHeight(root,entry){
+  if(!root.classList.contains('sticky-header'))return;
+  const value=Math.ceil(entry.borderBoxSize?.[0]?.blockSize??entry.target.getBoundingClientRect().height)+'px';
+  if(root.style.getPropertyValue('--header-height')!==value)root.style.setProperty('--header-height',value);
+}
+
 if(typeof document!=='undefined'){
 const header=document.querySelector('.site-header');
 if(header){
-  const measure=()=>document.documentElement.style.setProperty('--header-height',`${getComputedStyle(header).position==='sticky'?Math.ceil(header.getBoundingClientRect().height):0}px`);
-  measure();new ResizeObserver(measure).observe(header);
+  if(document.documentElement.classList.contains('sticky-header'))new ResizeObserver(entries=>updateHeaderHeight(document.documentElement,entries[0])).observe(header);
   for(const link of header.querySelectorAll('.main-nav a'))if(new URL(link.href).pathname===location.pathname)link.setAttribute('aria-current','page');
 }
 scheduleAnalytics(document,location,window);

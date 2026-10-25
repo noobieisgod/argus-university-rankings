@@ -7,7 +7,7 @@ import {basePath,publicationHtml,unmount} from './paths.mjs';
 import {compareCards,sortKey} from './assets/sort.mjs';
 import {filterByLocation} from './assets/location-filter.mjs';
 import {addSchool,matchingSchools} from './assets/compare.mjs';
-import {startAnalytics,scheduleAnalytics} from './assets/site.mjs';
+import {startAnalytics,scheduleAnalytics,updateHeaderHeight} from './assets/site.mjs';
 import {publicationConfig} from './seo.mjs';
 
 const root=path.dirname(fileURLToPath(import.meta.url));
@@ -46,6 +46,11 @@ inserted.length=0;let loaded;
 scheduleAnalytics({...doc,readyState:'interactive'},{origin:'https://example.com',pathname:'/ARGUS/'},{addEventListener:(event,handler,options)=>{assert.equal(event,'load');assert.deepEqual(options,{once:true});loaded=handler;}});
 assert.equal(inserted.length,0);loaded();assert.equal(inserted.length,1);
 inserted.length=0;scheduleAnalytics({...doc,readyState:'complete'},{origin:'https://example.com',pathname:'/ARGUS/'},{addEventListener:()=>assert.fail('Load already completed')});assert.equal(inserted.length,1);
+let sticky=false,writes=0,headerValue='';
+const html={classList:{contains:()=>sticky},style:{getPropertyValue:()=>headerValue,setProperty:(key,value)=>{assert.equal(key,'--header-height');headerValue=value;writes++;}}};
+const entry={borderBoxSize:[{blockSize:132.2}],target:{getBoundingClientRect:()=>assert.fail('Unnecessary layout read')}};
+updateHeaderHeight(html,entry);assert.equal(writes,0);
+sticky=true;updateHeaderHeight(html,entry);updateHeaderHeight(html,entry);assert.equal(writes,1);assert.equal(headerValue,'133px');
 if(process.argv.includes('--repository')){
   const repository=path.dirname(root);
   const files=execFileSync('git',['ls-files'],{cwd:repository,encoding:'utf8'}).trim().split('\n');
