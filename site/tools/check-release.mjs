@@ -9,8 +9,10 @@ export async function checkRelease(directory,expectedManifestHash){
   const hash=buffer=>createHash('sha256').update(buffer).digest('hex');
   if(expectedManifestHash)assert.equal(hash(bytes),expectedManifestHash,'Unapproved release manifest');
   const manifest=JSON.parse(bytes);
-  assert.equal(manifest.basePath,'/argus-university-rankings/');assert.equal(manifest.pages,245);assert.equal(manifest.photos,237);
-  assert.equal(Object.keys(manifest.files).filter(f=>f.endsWith('/index.html')||f==='index.html').length,245);
+  assert.ok([1,2].includes(manifest.schemaVersion),'Unknown release schema');
+  const pageCount=manifest.schemaVersion===1?245:249;
+  assert.equal(manifest.basePath,'/argus-university-rankings/');assert.equal(manifest.pages,pageCount);assert.equal(manifest.photos,237);
+  assert.equal(Object.keys(manifest.files).filter(f=>f.endsWith('/index.html')||f==='index.html').length,pageCount);
   assert.equal(Object.keys(manifest.files).filter(f=>/^assets\/[^/]+\.jpg$/.test(f)).length,237);
   const all=[];
   async function walk(dir){for(const e of await fs.readdir(dir,{withFileTypes:true})){
@@ -23,7 +25,7 @@ export async function checkRelease(directory,expectedManifestHash){
   const pages=new Map();
   for(const [file,checksum]of Object.entries(manifest.files)){
     assert.ok(!file.includes('\\')&&!file.startsWith('/')&&!file.split('/').some(p=>p==='..'||p==='.'||!p),'Unsafe release path');
-    assert.ok(file==='.nojekyll'||file==='provenance.json'||file==='photo-provenance.json'||file==='index.html'||/^(?:schools\/[^/]+|rankings\/(?:gus|stem|business|law|medical)|methodology|compare)\/index\.html$/.test(file)||/^assets\/[^/]+\.(?:jpg|css|svg|mjs)$/.test(file),'Excluded release path: '+file);
+    assert.ok(file==='.nojekyll'||file==='sitemap.xml'&&manifest.schemaVersion===2||file==='provenance.json'||file==='photo-provenance.json'||file==='index.html'||/^(?:schools\/[^/]+|rankings\/(?:gus|stem|business|law|medical|prestige|outcomes|student-experience|learning-environment)|methodology|compare)\/index\.html$/.test(file)||/^assets\/[^/]+\.(?:jpg|css|svg|mjs)$/.test(file),'Excluded release path: '+file);
     const content=await fs.readFile(path.join(directory,file));assert.equal(hash(content),checksum,'Changed release file: '+file);
     if(file.endsWith('.jpg'))assert.equal(content.subarray(0,2).toString('hex'),'ffd8','Invalid JPEG');
     if(file.endsWith('.html')){
@@ -38,6 +40,17 @@ export async function checkRelease(directory,expectedManifestHash){
   assert.equal(credits.length,237);
   for(const credit of credits){assert.ok(credit.source&&credit.photographer&&credit.license&&credit.licenseUrl&&credit.changes&&credit.conditions);assert.ok(!ids.has(credit.id));ids.add(credit.id);assert.equal(credit.sha256,manifest.files[`assets/${credit.id}.jpg`]);}
   assert.equal([...pages.keys()].filter(p=>p.startsWith('schools/')).length,237);
+  if(manifest.schemaVersion===2){
+    const xml=await fs.readFile(path.join(directory,'sitemap.xml'),'utf8');
+    const expected=new Set([...pages.keys()].filter(p=>p!=='compare/').map(p=>'https://noobieisgod.github.io/argus-university-rankings/'+(p==='/'?'':p)));
+    const urls=[...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
+    assert.equal(urls.length,248);assert.deepEqual(new Set(urls),expected);
+    for(const [route,html]of pages){
+      const canonical='https://noobieisgod.github.io/argus-university-rankings/'+(route==='/'?'':route);
+      assert.ok(html.includes(`<link rel="canonical" href="${canonical}">`),'Wrong canonical');
+      assert.equal(html.includes('content="noindex,follow"'),route==='compare/');
+    }
+  }
   let links=0;
   for(const html of pages.values())for(const match of html.matchAll(/\b(?:href|src)="([^"]+)"/g)){
     const value=match[1].replaceAll('&amp;','&');if(!value.startsWith('/'))continue;
@@ -46,6 +59,6 @@ export async function checkRelease(directory,expectedManifestHash){
     if(local.startsWith('assets/'))assert.ok(manifest.files[local],'Missing linked asset');
     else {const page=pages.get(local||'/');assert.ok(page,'Missing route: '+local);if(url.hash)assert.ok(page.includes(`id="${url.hash.slice(1)}"`),'Missing fragment');}
   }
-  return {pages:245,photos:237,links,manifestSha256:hash(bytes)};
+  return {pages:pageCount,photos:237,links,manifestSha256:hash(bytes)};
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url))console.log(JSON.stringify(await checkRelease(path.resolve(process.argv[2]),process.argv[3])));
