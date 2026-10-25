@@ -8,7 +8,7 @@ The initial release is prepared from locally verified, unchanged ranking inputs.
 2. Review public exposure of publisher observations, publisher ranks, ARGUS-derived results, admissions, source text, metadata and fixtures. Keep raw publisher inputs, excluded tables and private review records out of both public branches and deployed artifacts.
 3. Reconcile README with the finalized methodology and actual display behavior. User-reported acceptance is not publisher verification. SAT/GPA never score.
 4. Demonstrate a real unattended local checkpoint, GitHub-authenticated documentation push and later recovery before calling the background workflow verified.
-5. Validate the complete static release, including project-path links, assets, all 245 routes, ranking membership, NR states, interactions and desktop/mobile views.
+5. Validate the complete static release, including project-path links, assets, all 249 routes, ranking membership, NR states, interactions and desktop/mobile views.
 
 GitHub Pages serves the reviewed minimal release. The manually dispatched release workflow accepts only the exact approved publication commit and matching manifest. The deployment workflow does not need the excluded raw inputs.
 

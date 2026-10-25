@@ -4,7 +4,7 @@ ARGUS distinguishes local data validation from checks that can run in a public c
 
 ## Local checks
 
-The finalized private dataset contains 237 institutions. The generated website contains 245 pages. Thirteen institutions are Overall NR; their profiles remain included. Specialty membership follows the finalized eligibility records rather than Overall rank.
+The finalized private dataset contains 237 institutions. The generated website contains 249 pages. The sitemap contains 248 indexable routes and excludes the comparison tool. Category pages preserve full-universe ranks: Prestige 228, Outcomes 234, Student Experience 231 and Learning Environment 231 ranked institutions. Thirteen institutions are Overall NR; their profiles remain included. Specialty membership follows the finalized eligibility records rather than Overall rank.
 
 Before release, local checks compare the unchanged four exported JSON files with the saved master workbook, validate exact ranks, scores, ties and NR membership, and test deterministic output. The master is read without saving or recalculating it.
 
