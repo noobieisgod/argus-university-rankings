@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 
+export const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
 export function basePath(value=''){
   assert.equal(typeof value,'string','Base path must be a string');
   if(value===''||value==='/')return '';
