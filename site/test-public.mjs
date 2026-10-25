@@ -7,6 +7,8 @@ import {basePath,publicationHtml,unmount} from './paths.mjs';
 import {compareCards,sortKey} from './assets/sort.mjs';
 import {filterByLocation} from './assets/location-filter.mjs';
 import {addSchool,matchingSchools} from './assets/compare.mjs';
+import {startAnalytics} from './assets/site.mjs';
+import {publicationConfig} from './seo.mjs';
 
 const root=path.dirname(fileURLToPath(import.meta.url));
 async function walk(dir){const files=[];for(const e of await fs.readdir(dir,{withFileTypes:true})){
@@ -29,6 +31,17 @@ assert.equal(filterByLocation(cards,{city:'Example',state:'CA'},'b'),0);
 assert.deepEqual(addSchool(['a','b','c'],'d'),['a','b','c']);
 assert.deepEqual(addSchool(['a'],'a'),['a']);
 assert.equal(matchingSchools([{dataset:{search:'Example University California'}}],'example california').length,1);
+for(const bad of ['http://example.com','https://example.com/path','https://user@example.com','https://example.com?x'])assert.throws(()=>publicationConfig({siteOrigin:bad}));
+assert.throws(()=>publicationConfig({cloudflareToken:'a'.repeat(32)}));
+assert.throws(()=>publicationConfig({siteOrigin:'https://example.com',cloudflareToken:'bad'}));
+const analytics={dataset:{siteOrigin:'https://example.com',siteBase:'/ARGUS/',cloudflareToken:'a'.repeat(32)}};
+const inserted=[];
+const doc={querySelector:selector=>selector==='script[data-cloudflare-token]'?analytics:inserted[0],createElement:()=>({dataset:{}}),body:{append:script=>inserted.push(script)}};
+for(const loc of [{origin:'http://localhost',pathname:'/ARGUS/'},{origin:'https://example.com',pathname:'/ARGUS-other/'}])assert.equal(startAnalytics(doc,loc),false);
+assert.equal(startAnalytics(doc,{origin:'https://example.com',pathname:'/ARGUS/rankings/gus/'}),true);
+assert.equal(startAnalytics(doc,{origin:'https://example.com',pathname:'/ARGUS/'}),false);
+assert.equal(inserted.length,1);assert.deepEqual(JSON.parse(inserted[0].dataset.cfBeacon),{token:'a'.repeat(32),spa:false});
+assert.equal(inserted[0].src,'https://static.cloudflareinsights.com/beacon.min.js');
 if(process.argv.includes('--repository')){
   const repository=path.dirname(root);
   const files=execFileSync('git',['ls-files'],{cwd:repository,encoding:'utf8'}).trim().split('\n');

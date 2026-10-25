@@ -55,7 +55,7 @@ export function createLocationFilter(form,update){
   picker('ranking-school',cards.map(card=>({schoolId:card.dataset.schoolId,label:card.querySelector('h2').textContent,search:`${card.dataset.schoolName} ${card.querySelector('h2').textContent} ${card.dataset.city} ${card.dataset.state}`})).sort((a,b)=>a.label.localeCompare(b.label)),value=>{selectedSchool=value;});
   return key=>{
     const locationCount=filterByLocation(cards,selected),count=filterByLocation(cards,selected,selectedSchool?.schoolId),nr=document.querySelector('.nr-section');
-    if(nr)nr.hidden=key!=='score'||!Array.from(nr.querySelectorAll('.school-card')).some(card=>!card.hidden);
+    if(nr)nr.hidden=!Array.from(nr.querySelectorAll('.school-card')).some(card=>!card.hidden);
     status.textContent=`${locationCount} school${locationCount===1?'':'s'}${selected?' in '+selected.label:' across all locations'}.`;
     schoolStatus.textContent=selectedSchool?`${count} matching school${count===1?'':'s'}: ${selectedSchool.label}.`:'No school selected.';
     document.querySelector('#ranking-empty').hidden=count!==0;

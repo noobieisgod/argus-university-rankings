@@ -8,7 +8,7 @@ const root=path.resolve(process.env.ARGUS_OUTPUT_DIRECTORY??path.join(path.dirna
 const basePath=normalizeBasePath(process.env.ARGUS_BASE_PATH??'');
 const port=Number(process.env.PORT??4173);
 await fs.access(path.join(root,'index.html'));
-const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.jpg':'image/jpeg','.json':'application/json; charset=utf-8','.mjs':'text/javascript; charset=utf-8'};
+const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.jpg':'image/jpeg','.json':'application/json; charset=utf-8','.xml':'application/xml; charset=utf-8','.mjs':'text/javascript; charset=utf-8'};
 const server=http.createServer(async(req,res)=>{
   try{
     if(!['GET','HEAD'].includes(req.method)){res.writeHead(405,{Allow:'GET, HEAD'}).end();return;}
