@@ -1,1 +1,6 @@
-{"schemaVersion":1,"schools":237,"pages":245,"basePath":"/argus-university-rankings/","rightsReviewed":"2026-10-23"}
+{
+  "schemaVersion": 2,
+  "schools": 237,
+  "pages": 249,
+  "publicationProfile": "minimal"
+}
