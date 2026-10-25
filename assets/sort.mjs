@@ -22,8 +22,8 @@ export function sortCards(list,key){
 export function sortRanking(list,nrSection,key){
   if(nrSection){
     list.append(...nrSection.querySelectorAll('.school-card'));
-    if(key==='score')for(const card of Array.from(list.children))if(card.dataset.rank==='')nrSection.append(card);
-    nrSection.hidden=key!=='score';
+    for(const card of Array.from(list.children))if(key==='score'?card.dataset.rank==='':value(card,key)===null)nrSection.append(card);
+    nrSection.hidden=!nrSection.querySelectorAll('.school-card').length;
   }
   sortCards(list,key);
 }
@@ -38,12 +38,17 @@ export function updateRankLabels(card,key){
 if(typeof document!=='undefined'){
   const form=document.getElementById('ranking-sort'),list=document.getElementById('ranked-schools');
   if(form&&list){
-    const initial=sortKey(new URLSearchParams(location.search).get('sort'));
+    const requested=new URLSearchParams(location.search).get('sort');
+    const initial=sortKey(keys.has(requested)?requested:form.dataset.defaultSort);
     form.querySelector(`input[value="${initial}"]`).checked=true;
     let applyLocation=()=>{};
     const update=()=>{
       const selected=form.querySelector('input:checked');
       sortRanking(list,document.querySelector('.nr-section'),selected.value);
+      const nrHeading=document.querySelector('.nr-section h2');
+      if(nrHeading)nrHeading.textContent='Not ranked in '+selected.parentElement.textContent.trim();
+      const nrNote=document.querySelector('.nr-section > .quiet');
+      if(nrNote)nrNote.textContent='The designated source or eligibility requirements are not satisfied. These schools are not assigned a rank in '+selected.parentElement.textContent.trim()+'.';
       for(const card of document.querySelectorAll('.school-card'))updateRankLabels(card,selected.value);
       applyLocation(selected.value);
       document.getElementById('sort-status').textContent='Sorted by '+selected.parentElement.textContent+'. Published ranks are unchanged.';
