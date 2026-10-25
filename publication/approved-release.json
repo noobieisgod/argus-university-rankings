@@ -1,9 +1,9 @@
 {
   "schemaVersion": 2,
-  "commit": "a87407e647a273443f7cff85d7b2f9c355f8bb6e",
-  "manifestSha256": "4da8b433974b1b272a627ce844be9c4db08266b7e91f02eaecf827f45274ab35",
+  "commit": "e502223d449f3f085c788f1528ba88580e592fdb",
+  "manifestSha256": "e9a7cf942b32ee074ee9490b95e2d341c7d7a071d234d16a9656beba7a4a8ab0",
   "gatesPassed": true,
-  "reviewedAt": "2026-10-25T05:59:31.651Z",
+  "reviewedAt": "2026-10-25T06:05:36.540Z",
   "pages": 249,
   "photos": 237
 }
